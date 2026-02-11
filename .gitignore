@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[oc]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+wheels/
+
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# Environment Variables
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Data & Logs
+lancedb_data/
+logs/
+*.log
+
+# Reports
+reports/
+response_investimentos.md
+
+# OS
+.DS_Store
+Thumbs.db
+
+# UV
+uv.lock
