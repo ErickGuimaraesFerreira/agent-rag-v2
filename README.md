@@ -1,104 +1,107 @@
-# 🤖 Agente RAG com Google Gemini
+# Agente RAG com Google Gemini
 
-Agente de IA para análise automatizada de documentos PDF usando RAG (Retrieval-Augmented Generation).
+Sistema de RAG (Retrieval-Augmented Generation) para análise de documentos PDF usando Agno framework, Google Gemini e LanceDB como vector store.
 
-## 🚀 Funcionalidades
+## Stack
 
-- **RAG**: Busca vetorial com LanceDB + Google Gemini embeddings
-- **Instruções Customizadas**: Agente configurado com papel, tom e formato de resposta definidos
-- **Logging Estruturado**: Rastreamento completo da execução
-- **Tratamento de Erros**: Error handling com try/except
+- **Agno** - Framework de agentes
+- **Google Gemini 2.5 Flash** - LLM + embeddings
+- **LanceDB** - Vector database
+- **Python 3.12+**
 
-## 📦 Stack
+## Features
 
-- **Framework**: [Agno](https://github.com/agno-agi/agno)
-- **LLM**: Google Gemini 2.5 Flash
-- **Vector DB**: LanceDB
-- **Embeddings**: Google Gemini Embeddings
+- Busca vetorial em documentos PDF
+- Instruções customizadas para controle de comportamento do agente
+- Logging estruturado com timestamps
+- Error handling básico
+- Output em Markdown
 
-## 🛠️ Instalação
+## Setup
 
-### Pré-requisitos
+Clone e instale as dependências:
 
-- Python 3.12+
-- Google API Key ([obter aqui](https://ai.google.dev/))
-
-### Setup
-
-1. Clone o repositório:
 ```bash
-<<<<<<< HEAD
-git clone https://github.com/ErickGuimaraesFerreira/agent-rag-v2
-cd agno-rag-1
-=======
 git clone https://github.com/ErickGuimaraesFerreira/agent-rag-v2.git
 cd agent-rag-v2
->>>>>>> 2236f4b (atualização Readme)
-```
 
-2. Crie ambiente virtual e instale dependências:
-```bash
-# Com UV (recomendado)
-uv venv
-source .venv/bin/activate  # Linux/Mac
-# .venv\Scripts\activate   # Windows
+# Com UV
+uv venv && source .venv/bin/activate
 uv pip install -e .
 
-# OU com pip
-python -m venv .venv
-source .venv/bin/activate
+# Ou com pip
+python -m venv .venv && source .venv/bin/activate
 pip install -e .
 ```
 
-3. Configure as variáveis de ambiente:
+Configure a API key:
+
 ```bash
 cp .env.example .env
-# Edite .env e adicione sua GOOGLE_API_KEY
+# Adicione sua GOOGLE_API_KEY no arquivo .env
 ```
 
-4. Adicione seus PDFs no diretório `knowledge/`
+Obtenha a key em: https://ai.google.dev/
 
-## 🎯 Uso
+## Uso
+
+Adicione seus PDFs em `knowledge/` e execute:
 
 ```bash
 python code.py
 ```
 
-O agente irá:
-1. Indexar os PDFs do diretório `knowledge/`
-2. Processar as perguntas definidas no código
-3. Gerar um relatório em `response_investimentos.md`
+O script indexa os documentos, processa as perguntas definidas no código e salva o resultado em `response_investimentos.md`.
 
-### Personalizando as Perguntas
+### Customização
 
-Edite as linhas 60-61 do `code.py` para fazer suas próprias perguntas:
+Edite as queries nas linhas 60-61 do `code.py`:
 
 ```python
 response1 = agent.run("Sua pergunta aqui")
 response2 = agent.run("Outra pergunta")
 ```
 
-## 📁 Estrutura do Projeto
+Ajuste as instruções do agente nas linhas 47-51:
+
+```python
+instructions=[
+    "Responda de maneira concisa e direta.",
+    "Se não souber a resposta, responda que não sabe.",
+    "Não utilize informações que não estejam na base de conhecimento.",
+],
+```
+
+## Estrutura
 
 ```
-agent-rag-v2/
 ├── code.py              # Script principal
 ├── knowledge/           # PDFs para indexação
-├── .env                 # Variáveis de ambiente (não commitado)
-├── .env.example         # Template de .env
+├── .env                 # API keys (não commitado)
 ├── pyproject.toml       # Dependências
 └── README.md
 ```
 
-## 🔑 Variáveis de Ambiente
+## Implementação
 
-Crie um arquivo `.env` na raiz:
+O código segue uma estrutura simples:
 
-```env
-GOOGLE_API_KEY=sua_chave_aqui
-```
+1. **Configuração** - Logging e carregamento de env vars
+2. **Vector DB** - Inicializa LanceDB com Gemini embeddings
+3. **Knowledge Base** - Indexa PDFs do diretório `knowledge/`
+4. **Agent** - Configura o agente com instructions e expected output
+5. **Execução** - Processa queries e salva resultado
 
-## 📊 Exemplo de Output
+Principais componentes:
+
+- `main()` - Entry point com error handling
+- `logging` - Console output com timestamps
+- `Agent.run()` - Executa queries com RAG
+- Try/except - Captura erros durante execução
+
+## Output
+
+Exemplo de execução:
 
 ```
 2026-02-10 22:00:00 | INFO     | Agente RAG iniciado...
@@ -107,24 +110,10 @@ GOOGLE_API_KEY=sua_chave_aqui
 2026-02-10 22:00:15 | INFO     | Relatório salvo em response_investimentos.md
 ```
 
-## 🔧 Features Técnicas
-
-- **Função `main()`**: Código estruturado com entry point adequado
-- **Logging**: Timestamps e níveis de log profissionais
-- **Agent Instructions**: Lista de regras de comportamento
-- **Expected Output**: Formato de resposta definido
-- **Error Handling**: Try/except para captura de erros
-
-## 📝 Licença
+## Licença
 
 MIT
 
-## 👤 Autor
-
-**Erick Guimarães Ferreira**
-
-- GitHub: [@ErickGuimaraesFerreira](https://github.com/ErickGuimaraesFerreira)
-
 ---
 
-⭐ Se este projeto foi útil, dê uma estrela!
+**Erick Guimarães Ferreira** | [GitHub](https://github.com/ErickGuimaraesFerreira)
