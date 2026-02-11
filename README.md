@@ -28,7 +28,7 @@ Agente de IA com RAG (Retrieval-Augmented Generation) para análise automatizada
 
 1. Clone o repositório:
 ```bash
-git clone https://github.com/SEU_USERNAME/agno-rag-1.git
+git clone https://github.com/ErickGuimaraesFerreira/agent-rag-v2
 cd agno-rag-1
 ```
 
