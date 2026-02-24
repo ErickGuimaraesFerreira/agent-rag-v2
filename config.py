@@ -15,20 +15,17 @@ class Settings(BaseSettings):
         env_file=".env", env_file_encoding="utf-8", extra="ignore"
     )
 
-    # Valores padrão caso não estejam no .env
     model_id: str = "gemini-2.5-flash"
     knowledge_dir: Path = Path("knowledge")
     lancedb_uri: str = "lancedb_data"
     table_name: str = "pdfs_local"
-    jwt_secret: str = "JWT_SECRET"  # Recomendável alterar no .env
+    jwt_secret: str = "JWT_SECRET"  
 
-    # Novas variáveis para Observabilidade (LLMOps)
     agentops_api_key: Optional[str] = None
     langchain_tracing_v2: str = "false"
     langchain_api_key: Optional[str] = ""
     langchain_project: str = ""
 
-    # Configuração para ler do arquivo .env
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", extra="ignore"
     )
