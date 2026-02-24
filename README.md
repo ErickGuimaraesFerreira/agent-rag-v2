@@ -47,6 +47,17 @@ Sistema de RAG (Retrieval-Augmented Generation) para análise de documentos PDF 
 - **Configurações externalizadas** — Model ID, diretório de knowledge, URI do LanceDB e nome da tabela são configuráveis sem alterar o código-fonte
 - **Base de conhecimento expandida** — Novos documentos PDF adicionados à knowledge base para consultas mais abrangentes
 
+### Novas Features (v2.1 - Production Ready)
+
+Implementadas no arquivo `code_agno_telemetry.py`, estas features elevam o sistema para um ambiente de produção real:
+
+- **Observabilidade Integrada (AgentOS)** — O monitoramento de traces e performance é realizado automaticamente pelo `AgentOS` com persistência em banco de dados SQLite.
+- **AgentOS Integration** — O agente agora é gerenciado pelo `AgentOS`, permitindo escalabilidade e gestão centralizada.
+- **Servidor API & UI** — Suporte para servir o agente via FastAPI e uma interface gráfica (UI) dedicada através do comando `--serve`.
+- **Otimização de Busca (Multi-Query)** — Instruções avançadas que forçam o agente a realizar buscas minuciosas e repetidas com diferentes palavras-chave até cobrir toda a base.
+- **Autenticação JWT Opcional** — Suporte para proteção de endpoints via `JWTMiddleware`, configurável através da `jwt_secret` no arquivo de configurações.
+- **Arquitetura de Produção** — Nomeado internamente como "Production Ready", o sistema garante respostas mais precisas com referências de páginas obrigatórias e gestão automática de observabilidade.
+
 ## Base de Conhecimento
 
 Documentos PDF indexados pelo agente (**4 documentos, 2.347 páginas no total**):
@@ -86,13 +97,26 @@ Obtenha a key em: https://ai.google.dev/
 
 ## Uso
 
-Adicione seus PDFs em `knowledge/` e execute:
+O projeto agora conta com duas versões:
 
+### 1. Versão Básica
+Indexa PDFs e responde perguntas via terminal:
 ```bash
 python code.py
 ```
 
-O script indexa automaticamente todos os documentos PDF do diretório, processa as perguntas definidas no código e salva o resultado em `response_investimentos.md`.
+### 2. Versão Produção (v2.1)
+Inclui observabilidade nativa, traces e interface gráfica (UI) via AgentOS:
+```bash
+# Rodar pergunta direta
+python code_agno_telemetry.py "Sua pergunta"
+
+# Iniciar servidor UI (Porta 7777)
+python code_agno_telemetry.py "Pergunta Opcional" --serve
+```
+
+O script indexa automaticamente todos os documentos PDF do diretório e salva o resultado em `response_investimentos.md`.
+
 
 ### Customização
 
@@ -126,30 +150,32 @@ instructions=[
 ## Estrutura
 
 ```
-├── code.py              # Script principal
-├── config.py            # Configurações centralizadas (Pydantic Settings)
-├── knowledge/           # PDFs para indexação (auto-descoberta)
-├── .env                 # API keys (não commitado)
-├── pyproject.toml       # Dependências
+├── code.py                # Script básico
+├── code_agno_telemetry.py # Script v2.1 (Produção + Observabilidade)
+├── config.py              # Configurações centralizadas (Pydantic Settings)
+├── knowledge/             # PDFs para indexação (auto-descoberta)
+├── .env                   # API keys (não commitado)
+├── pyproject.toml         # Dependências
 └── README.md
 ```
 
 ## Implementação
 
-O código segue uma arquitetura modular:
+O código segue uma arquitetura modular e orientada a objetos:
 
-1. **Configuração (`config.py`)** — Pydantic BaseSettings carrega variáveis do `.env` com valores padrão
-2. **Setup Knowledge** — Função dedicada que inicializa LanceDB, escaneia PDFs e indexa com error handling individual
-3. **Agent** — Configura o agente com instructions, expected output e knowledge base
-4. **Execução (`main()`)** — Entry point com error handling e `sys.exit(1)` em caso de falha
+1. **Configuração (`config.py`)** — Pydantic BaseSettings carrega variáveis do `.env` com validação de tipos.
+2. **Setup Knowledge** — Função dedicada que inicializa LanceDB, escaneia PDFs e gerencia a indexação com bypass de duplicatas.
+3. **Agent Architecture** — O agente utiliza instruções avançadas para busca multi-query, garantindo cobertura total dos documentos.
+4. **AgentOS & Observabilidade** — (v2.1) Utiliza `AgentOS` para orquestração e monitoramento automático de traces.
+5. **Segurança (JWT)** — Implementação de middleware para autenticação baseada em tokens (opcional).
+6. **Entry Point** — Suporte híbrido para execução CLI ou Servidor FastAPI/UI.
 
 Principais componentes:
 
-- `Settings` (Pydantic) — Validação e carregamento de configurações
-- `setup_knowledge()` — Inicializa vector DB e indexa PDFs
-- `main()` — Entry point com error handling
-- `logging` — Console output com timestamps
-- `Agent.run()` — Executa queries com RAG
+- `Settings` — Gestão de ambiente.
+- `setup_knowledge()` — Gestão de Vector DB.
+- `AgentOS` — Orquestração e UI.
+- `main()` — CLI interface com modo `--serve`.
 
 ## Output
 
