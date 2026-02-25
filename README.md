@@ -94,8 +94,6 @@ python code_agno_telemetry.py "Sua pergunta"
 python code_agno_telemetry.py "Pergunta Opcional" --serve
 ```
 
-O script indexa automaticamente todos os documentos PDF do diretório e salva o resultado em `response_investimentos.md`.
-
 ![Imagem Primeiro Comando](prints/Imagem-colada.png)
 
 ### Customização
