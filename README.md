@@ -2,26 +2,6 @@
 
 Sistema de RAG (Retrieval-Augmented Generation) para análise de documentos PDF usando Agno framework, Google Gemini e LanceDB como vector store.
 
-```
-        @@@@@@@@@@@@@@@@                                                                            
-        @##############@                                                                            
-         @@@@@@@@@@@####@                                                                           
-                    @####@              @@@@####@@@#@        #@@@@@@@@@#               @@@@@@
-                     @####@           @@@######@@@@###@   @###@@@########@@        @@@########@@@
-                      @####@        @@###@@@ @@@######@   @###@#@@@ @@@####@     @####@@@ @@@@###@
-                       @####@      @####@        @####@   @####@       @####    @###@@        @###@ 
-                        @####@     @###@          ####@   @###@        @####@  @####@          @###@
-                        @#####@    ####@          @###@   @###@        @####@  @###@           @####
-                         @#####@   @###@          ####@   @###@        @####@  @####@          @###@
-                          @#####@  @####@        @####@   @###@        @####@   @###@         @####@
-@@@@@@@@@@@@@@@            @####@   @####@@@@@@@##@###@   @###@        @####@    @###@@     @@###@@ 
-@##############             @####@    @@#######@@ @###@   @####        @####@     @@@##########@@   
-@@@@@@@@@@@@@@@              @@@@@@      @@@@@    ####@   @@@@@         @@@@         @@@@@@@@@      
-                                   @@@@@@        @####@
-                                    @@###@@@@@@@####@
-                                       @@@@####@@@@
-
-```
 ## Stack
 
 - **Agno** - Framework de agentes
@@ -36,7 +16,6 @@ Sistema de RAG (Retrieval-Augmented Generation) para análise de documentos PDF 
 - Instruções customizadas para controle de comportamento do agente
 - Logging estruturado com timestamps
 - Error handling robusto com `try/except` granular
-- Output em Markdown
 
 ### Novas Features (v2)
 
