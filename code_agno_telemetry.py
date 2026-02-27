@@ -1,10 +1,10 @@
+from typing import List, Union, Optional
 from agno.os import AgentOS
 import os
 import sys
 import logging
 import atexit
 
-from dotenv import load_dotenv
 from agno.agent import Agent
 from agno.models.google import Gemini
 from agno.knowledge.knowledge import Knowledge
@@ -12,6 +12,11 @@ from agno.vectordb.lancedb import LanceDb
 from agno.db.sqlite import SqliteDb
 from agno.knowledge.embedder.google import GeminiEmbedder
 from config import settings
+from agno.guardrails.prompt_injection import PromptInjectionGuardrail
+from agno.guardrails.base import BaseGuardrail
+from agno.run.agent import RunInput
+from agno.run.team import TeamRunInput
+from agno.exceptions import InputCheckError
 from fastapi import FastAPI
 from dotenv import load_dotenv
 
@@ -58,6 +63,21 @@ def setup_knowledge() -> Knowledge:
 
     return knowledge_base
 
+    ########## Guardrails ##########
+
+    ########## Proteção contra Prompt Injection ##########
+
+    def check(self, run_input: Union[RunInput, TeamRunInput]) -> None:
+
+        if any(
+            keyword in run_input.input_content_string().lower()
+            for keyword in self.injection_patterns
+        ):
+            raise InputCheckError(
+                "Potential jailbreaking or prompt injection detected.",
+                check_trigger=CheckTrigger.PROMPT_INJECTION,
+            )
+
 
 # a########## Função principal
 
@@ -76,6 +96,9 @@ agent = Agent(
     ],
     expected_output="Resposta estruturada em markdown com as páginas de referência.",
     model=Gemini(id=settings.model_id, api_key=settings.google_api_key),
+    pre_hooks=[
+        PromptInjectionGuardrail(injection_patterns=settings.injection_patterns)
+    ],
     knowledge=knowledge_base,
     search_knowledge=True,
     markdown=True,
@@ -104,10 +127,6 @@ def main():
             logger.info(f"Pergunta: {question}")
             response = agent.run(question)
             agent.print_response(response.content)
-
-            with open("response_investimentos.md", "w", encoding="utf-8") as f:
-                f.write(response.content)
-            logger.info("Relatório salvo em response_investimentos.md")
         except Exception as e:
             logger.error(f"Erro durante execução: {e}")
 

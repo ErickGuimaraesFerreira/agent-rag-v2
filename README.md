@@ -1,21 +1,27 @@
 # Agente RAG com Google Gemini
 
-Sistema de RAG (Retrieval-Augmented Generation) para análise de documentos PDF usando Agno framework, Google Gemini e LanceDB como vector store.
+Sistema de RAG (Retrieval-Augmented Generation) avançado com observabilidade, segurança (Guardrails) e interface UI, utilizando Agno framework, Google Gemini 2.5 Flash e LanceDB.
 
 ## Stack
 
-- **Agno** - Framework de agentes
-- **Google Gemini 2.5 Flash** - LLM + embeddings
-- **LanceDB** - Vector database
-- **Pydantic Settings** - Gerenciamento de configurações
-- **Python 3.12+**
+- **[Agno](https://agno.com)** — Framework de orquestração de Agentes AI.
+- **Google Gemini 2.5 Flash** — LLM de última geração e embeddings de alta performance.
+- **LanceDB** — Vector database para busca semântica eficiente.
+- **AgentOS** — Componente para orquestração de threads, UI e persistência.
+- **FastAPI** — Motor de API para integração e interface web.
+- **LangSmith & OpenTelemetry** — Observabilidade avançada e rastreamento de traces.
+- **Pydantic Settings** — Gestão de configurações via `BaseSettings` e `.env`.
 
 ## Features
 
-- Busca vetorial em documentos PDF
-- Instruções customizadas para controle de comportamento do agente
-- Logging estruturado com timestamps
-- Error handling robusto com `try/except` granular
+- **RAG Multi-Documento** — Indexação e busca semântica automática em múltiplos arquivos PDF.
+- **Observabilidade & Tracing** — Monitoramento detalhado de cada etapa do agente com integração AgentOS e LangSmith.
+- **Segurança Reforçada** — Proteção nativa contra Prompt Injection e vazamento de PII (dados sensíveis).
+- **Interface UI Playground** — Servidor web embutido para interação visual com o agente.
+- **Busca Iterativa (Multi-Query)** — O agente executa múltiplas consultas para garantir cobertura total.
+- **Configuração Centralizada** — Controle total de modelos e parâmetros via `config.py`.
+- **Persistência de Telemetria** — Armazenamento local em SQLite para auditoria.
+- **Output Estruturado** — Respostas em Markdown com referências automáticas de páginas.
 
 ### Novas Features (v2)
 
@@ -36,6 +42,14 @@ Implementadas no arquivo `code_agno_telemetry.py`, estas features elevam o siste
 - **Otimização de Busca (Multi-Query)** — Instruções avançadas que forçam o agente a realizar buscas minuciosas e repetidas com diferentes palavras-chave até cobrir toda a base.
 - **Autenticação JWT Opcional** — Suporte para proteção de endpoints via `JWTMiddleware`, configurável através da `jwt_secret` no arquivo de configurações.
 - **Arquitetura de Produção** — Nomeado internamente como "Production Ready", o sistema garante respostas mais precisas com referências de páginas obrigatórias e gestão automática de observabilidade.
+
+### Novas Features (v2.2 - Security & Guardrails)
+
+Implementada no arquivo `code_agno_telemetry.py` e centralizada no `config.py`, esta versão foca em segurança:
+
+- **Proteção contra Prompt Injection** — Utiliza o `PromptInjectionGuardrail` nativo do Agno, configurado com uma lista abrangente de padrões de ataque.
+- **Configurações Centralizadas (`config.py`)** — Adição da variável `injection_patterns`, que centraliza todos os termos e frases usados para detectar tentativas de "jailbreak" ou injeção de prompt, permitindo atualizações sem alterar a lógica do agente.
+- **Segurança Proativa** — O agente agora valida a entrada do usuário contra os padrões definidos antes mesmo de processar a requisição no LLM.
 
 ## Base de Conhecimento
 
@@ -141,11 +155,11 @@ instructions=[
 
 O código segue uma arquitetura modular e orientada a objetos:
 
-1. **Configuração (`config.py`)** — Pydantic BaseSettings carrega variáveis do `.env` com validação de tipos.
+1. **Configuração (`config.py`)** — Pydantic BaseSettings gerencia chaves, modelos e agora **padrões de segurança (injection patterns)** centralizados.
 2. **Setup Knowledge** — Função dedicada que inicializa LanceDB, escaneia PDFs e gerencia a indexação com bypass de duplicatas.
-3. **Agent Architecture** — O agente utiliza instruções avançadas para busca multi-query, garantindo cobertura total dos documentos.
-4. **AgentOS & Observabilidade** — (v2.1) Utiliza `AgentOS` para orquestração e monitoramento automático de traces.
-5. **Segurança (JWT)** — Implementação de middleware para autenticação baseada em tokens (opcional).
+3. **Agent Architecture** — O agente utiliza instruções avançadas para busca multi-query e **pre-hooks de segurança**.
+4. **AgentOS & Observabilidade** — Utiliza `AgentOS` para orquestração e monitoramento automático de traces.
+5. **Segurança & Guardrails** — Implementação de `PromptInjectionGuardrail` no arquivo principal de telemetria, garantindo que ataques sejam bloqueados na entrada.
 6. **Entry Point** — Suporte híbrido para execução CLI ou Servidor FastAPI/UI.
 
 Principais componentes:
