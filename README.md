@@ -51,6 +51,15 @@ Implementada no arquivo `code_agno_telemetry.py` e centralizada no `config.py`, 
 - **Configurações Centralizadas (`config.py`)** — Adição da variável `injection_patterns`, que centraliza todos os termos e frases usados para detectar tentativas de "jailbreak" ou injeção de prompt, permitindo atualizações sem alterar a lógica do agente.
 - **Segurança Proativa** — O agente agora valida a entrada do usuário contra os padrões definidos antes mesmo de processar a requisição no LLM.
 
+### Novas Features (v2.3 - Modular Architecture)
+
+Esta versão foca em **Segregação de Responsabilidades (SoC)** e escalabilidade, movendo a lógica complexa de arquivos únicos para módulos especializados:
+
+- **Refatoração para `knowledge.py`** — A lógica de gerenciamento do LanceDB, `GeminiEmbedder` e crawling de PDFs foi movida para este arquivo. Isso permite que múltiplos agentes compartilhem a mesma Knowledge Base sem duplicar código.
+- **Camada de Segurança em `security.py`** — Centralização dos Guardrails. O sistema agora utiliza o `protection_guardrail` (baseado em `PromptInjectionGuardrail`) com uma lista dinâmica de mais de 70 padrões de ataque carregados do `config.py`.
+- **Configurações Centralizadas (`config.py`)** — Uso avançado de `Pydantic BaseSettings` para gerenciar não apenas chaves e modelos, mas também os parâmetros de segurança e segredos JWT.
+- **Integração total no `code_agno_telemetry.py`** — O script de produção agora consome os módulos de segurança e conhecimento, integrando-os com `AgentOS` para observabilidade em tempo real e interface Web UI.
+
 ## Base de Conhecimento
 
 Documentos PDF indexados pelo agente (**4 documentos, 2.347 páginas no total**):
@@ -145,6 +154,8 @@ instructions=[
 ├── code.py                # Script básico
 ├── code_agno_telemetry.py # Script v2.1 (Produção + Observabilidade)
 ├── config.py              # Configurações centralizadas (Pydantic Settings)
+├── security.py            # Módulo de Segurança e Guardrails
+├── knowledge.py           # Módulo de Conhecimento e Indexação Vectorial
 ├── knowledge/             # PDFs para indexação (auto-descoberta)
 ├── .env                   # API keys (não commitado)
 ├── pyproject.toml         # Dependências

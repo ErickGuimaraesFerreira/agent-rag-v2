@@ -7,16 +7,15 @@ import atexit
 
 from agno.agent import Agent
 from agno.models.google import Gemini
-from agno.knowledge.knowledge import Knowledge
-from agno.vectordb.lancedb import LanceDb
 from agno.db.sqlite import SqliteDb
-from agno.knowledge.embedder.google import GeminiEmbedder
 from config import settings
 from agno.guardrails.prompt_injection import PromptInjectionGuardrail
 from agno.guardrails.base import BaseGuardrail
 from agno.run.agent import RunInput
 from agno.run.team import TeamRunInput
 from agno.exceptions import InputCheckError
+from knowledge import setup_knowledge
+from security import protection_guardrail
 from fastapi import FastAPI
 from dotenv import load_dotenv
 
@@ -33,55 +32,7 @@ logger = logging.getLogger("agente_rag")
 
 db = SqliteDb(db_file="tmp/agno_telemetry.db")
 
-########## Funçaõ da base de conhecimento
-
-
-def setup_knowledge() -> Knowledge:
-    vector_db = LanceDb(
-        table_name=settings.table_name,
-        uri=settings.lancedb_uri,
-        embedder=GeminiEmbedder(api_key=settings.google_api_key),
-    )
-
-    knowledge_base = Knowledge(
-        vector_db=vector_db,
-        max_results=30,
-    )
-    pdf_files = list(settings.knowledge_dir.glob("*.pdf"))
-
-    if not pdf_files:
-        logger.warning(f"Nenhum PDF encontrado em {settings.knowledge_dir}")
-        return knowledge_base
-
-    logger.info(f"Encontrados {len(pdf_files)} documentos. Iniciando indexação...")
-    for pdf in pdf_files:
-        try:
-            knowledge_base.add_content(path=str(pdf), skip_if_exists=True)
-            logger.info(f"Processado: {pdf.name}")
-        except Exception as e:
-            logger.error(f"Erro ao processar {pdf.name}: {e}")
-
-    return knowledge_base
-
-    ########## Guardrails ##########
-
-    ########## Proteção contra Prompt Injection ##########
-
-    def check(self, run_input: Union[RunInput, TeamRunInput]) -> None:
-
-        if any(
-            keyword in run_input.input_content_string().lower()
-            for keyword in self.injection_patterns
-        ):
-            raise InputCheckError(
-                "Potential jailbreaking or prompt injection detected.",
-                check_trigger=CheckTrigger.PROMPT_INJECTION,
-            )
-
-
 # a########## Função principal
-
-knowledge_base = setup_knowledge()
 
 agent = Agent(
     name="Agente RAG Production Ready",
@@ -96,10 +47,8 @@ agent = Agent(
     ],
     expected_output="Resposta estruturada em markdown com as páginas de referência.",
     model=Gemini(id=settings.model_id, api_key=settings.google_api_key),
-    pre_hooks=[
-        PromptInjectionGuardrail(injection_patterns=settings.injection_patterns)
-    ],
-    knowledge=knowledge_base,
+    pre_hooks=[protection_guardrail],
+    knowledge=setup_knowledge(),
     search_knowledge=True,
     markdown=True,
 )
